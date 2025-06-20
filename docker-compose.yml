@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - DATABASE_URL=sqlite://auth.db
+      - JWT_SECRET=your-super-secret-key
+      - GOOGLE_CLIENT_ID=your-google-client-id
+      - GOOGLE_CLIENT_SECRET=your-google-client-secret
+      - ALLOWED_DOMAIN=yourcompany.com
+    volumes:
+      - ./data:/root/data
+    depends_on:
+      - postgres
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.user
+    ports:
+      - "9091:9091"
+    environment:
+      - DATABASE_URL=sqlite://users.db
+    volumes:
+      - ./data:/root/data
+    depends_on:
+      - postgres
+
+  asset-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.asset
+    ports:
+      - "9092:9092"
+    environment:
+      - DATABASE_URL=sqlite://assets.db
+    volumes:
+      - ./data:/root/data
+    depends_on:
+      - postgres
+
+  ticket-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.ticket
+    ports:
+      - "9093:9093"
+    environment:
+      - DATABASE_URL=sqlite://tickets.db
+    volumes:
+      - ./data:/root/data
+    depends_on:
+      - postgres
+
+  assignment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.assignment
+    ports:
+      - "9094:9094"
+    environment:
+      - DATABASE_URL=sqlite://assignments.db
+    volumes:
+      - ./data:/root/data
+    depends_on:
+      - postgres
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.notification
+    ports:
+      - "9095:9095"
+    environment:
+      - DATABASE_URL=sqlite://notifications.db
+    volumes:
+      - ./data:/root/data
+    depends_on:
+      - postgres
+
+  bff:
+    build:
+      context: .
+      dockerfile: Dockerfile.bff
+    ports:
+      - "8000:8000"
+    environment:
+      - JWT_SECRET=your-super-secret-key
+      - AUTH_SERVICE_URL=auth-service:9090
+      - USER_SERVICE_URL=user-service:9091
+      - ASSET_SERVICE_URL=asset-service:9092
+      - TICKET_SERVICE_URL=ticket-service:9093
+      - ASSIGNMENT_SERVICE_URL=assignment-service:9094
+      - NOTIFICATION_SERVICE_URL=notification-service:9095
+    depends_on:
+      - auth-service
+      - user-service
+      - asset-service
+      - ticket-service
+      - assignment-service
+      - notification-service
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=internal_support
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data: 

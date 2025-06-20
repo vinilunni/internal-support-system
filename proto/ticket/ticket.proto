@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package ticket;
+
+option go_package = "internal-support-system/proto/ticket";
+
+service TicketService {
+  rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse);
+  rpc GetTicket(GetTicketRequest) returns (GetTicketResponse);
+  rpc UpdateTicket(UpdateTicketRequest) returns (UpdateTicketResponse);
+  rpc CloseTicket(CloseTicketRequest) returns (CloseTicketResponse);
+  rpc ListTickets(ListTicketsRequest) returns (ListTicketsResponse);
+  rpc GetUserTickets(GetUserTicketsRequest) returns (GetUserTicketsResponse);
+  rpc AddComment(AddCommentRequest) returns (AddCommentResponse);
+  rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
+}
+
+enum TicketStatus {
+  OPEN = 0;
+  IN_PROGRESS = 1;
+  PENDING = 2;
+  RESOLVED = 3;
+  CLOSED = 4;
+}
+
+enum TicketPriority {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
+  URGENT = 3;
+}
+
+enum TicketCategory {
+  HARDWARE = 0;
+  SOFTWARE = 1;
+  NETWORK = 2;
+  ACCESS = 3;
+  GENERAL = 4;
+}
+
+message Ticket {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  TicketCategory category = 4;
+  TicketPriority priority = 5;
+  TicketStatus status = 6;
+  string requester_id = 7;
+  string assignee_id = 8;
+  string created_at = 9;
+  string updated_at = 10;
+  string resolved_at = 11;
+  repeated string tags = 12;
+}
+
+message TicketComment {
+  string id = 1;
+  string ticket_id = 2;
+  string user_id = 3;
+  string content = 4;
+  string created_at = 5;
+  bool is_internal = 6;
+}
+
+message CreateTicketRequest {
+  string title = 1;
+  string description = 2;
+  TicketCategory category = 3;
+  TicketPriority priority = 4;
+  string requester_id = 5;
+  repeated string tags = 6;
+}
+
+message CreateTicketResponse {
+  Ticket ticket = 1;
+}
+
+message GetTicketRequest {
+  string id = 1;
+}
+
+message GetTicketResponse {
+  Ticket ticket = 1;
+}
+
+message UpdateTicketRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  TicketCategory category = 4;
+  TicketPriority priority = 5;
+  TicketStatus status = 6;
+  string assignee_id = 7;
+  repeated string tags = 8;
+}
+
+message UpdateTicketResponse {
+  Ticket ticket = 1;
+}
+
+message CloseTicketRequest {
+  string id = 1;
+  string resolution_notes = 2;
+  string closed_by = 3;
+}
+
+message CloseTicketResponse {
+  Ticket ticket = 1;
+}
+
+message ListTicketsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  TicketStatus status = 3;
+  TicketPriority priority = 4;
+  TicketCategory category = 5;
+  string assignee_id = 6;
+  string requester_id = 7;
+}
+
+message ListTicketsResponse {
+  repeated Ticket tickets = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message GetUserTicketsRequest {
+  string user_id = 1;
+  TicketStatus status = 2;
+}
+
+message GetUserTicketsResponse {
+  repeated Ticket tickets = 1;
+}
+
+message AddCommentRequest {
+  string ticket_id = 1;
+  string user_id = 2;
+  string content = 3;
+  bool is_internal = 4;
+}
+
+message AddCommentResponse {
+  TicketComment comment = 1;
+}
+
+message GetCommentsRequest {
+  string ticket_id = 1;
+  bool include_internal = 2;
+}
+
+message GetCommentsResponse {
+  repeated TicketComment comments = 1;
+} 

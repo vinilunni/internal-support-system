@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package assignment;
+
+option go_package = "internal-support-system/proto/assignment";
+
+service AssignmentService {
+  rpc AssignAsset(AssignAssetRequest) returns (AssignAssetResponse);
+  rpc UnassignAsset(UnassignAssetRequest) returns (UnassignAssetResponse);
+  rpc GetAssignment(GetAssignmentRequest) returns (GetAssignmentResponse);
+  rpc ListAssignments(ListAssignmentsRequest) returns (ListAssignmentsResponse);
+  rpc GetUserAssignments(GetUserAssignmentsRequest) returns (GetUserAssignmentsResponse);
+}
+
+enum AssignmentStatus {
+  ACTIVE = 0;
+  RETURNED = 1;
+  OVERDUE = 2;
+  LOST = 3;
+}
+
+message Assignment {
+  string id = 1;
+  string asset_id = 2;
+  string user_id = 3;
+  string assigned_by = 4;
+  string assigned_date = 5;
+  string expected_return_date = 6;
+  string actual_return_date = 7;
+  AssignmentStatus status = 8;
+  string notes = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message AssignAssetRequest {
+  string asset_id = 1;
+  string user_id = 2;
+  string assigned_by = 3;
+  string expected_return_date = 4;
+  string notes = 5;
+}
+
+message AssignAssetResponse {
+  Assignment assignment = 1;
+}
+
+message UnassignAssetRequest {
+  string assignment_id = 1;
+  string returned_by = 2;
+  string notes = 3;
+}
+
+message UnassignAssetResponse {
+  Assignment assignment = 1;
+}
+
+message GetAssignmentRequest {
+  string id = 1;
+}
+
+message GetAssignmentResponse {
+  Assignment assignment = 1;
+}
+
+message ListAssignmentsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  AssignmentStatus status = 3;
+  string user_id = 4;
+  string asset_id = 5;
+}
+
+message ListAssignmentsResponse {
+  repeated Assignment assignments = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message GetUserAssignmentsRequest {
+  string user_id = 1;
+  AssignmentStatus status = 2;
+}
+
+message GetUserAssignmentsResponse {
+  repeated Assignment assignments = 1;
+} 
